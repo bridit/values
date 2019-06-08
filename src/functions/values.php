@@ -36,6 +36,10 @@ function get_values($object, bool $copy = true): array
 
 function add_value($object, $key, $value, $valueKey = null)
 {
+    if ($value instanceof \DateTimeZone || $value instanceof \DateTime || $value instanceof \DateInterval) {
+        @trigger_error('Calling add_value with date objects is deprecated. Use cast classes.', E_USER_DEPRECATED);
+    }
+
     return (function($key, $value, $valueKey) {
         foreach (get_registered_hooks($this, HooksEnum::PRE_ADD_VALUE) as $callback) {
             if (null !== $changedValue = call_user_func($callback, $this, $key, $value)) {
@@ -74,6 +78,10 @@ function add_value($object, $key, $value, $valueKey = null)
 
 function set_value($object, $key, $value)
 {
+    if ($value instanceof \DateTimeZone || $value instanceof \DateTime || $value instanceof \DateInterval) {
+        @trigger_error('Calling set_value with date objects is deprecated. Use cast classes.', E_USER_DEPRECATED);
+    }
+
     return (function($key, $value) {
         foreach (get_registered_hooks($this, HooksEnum::PRE_SET_VALUE) as $callback) {
             if (null !== $newValue = call_user_func($callback, $this, $key, $value)) {
@@ -95,6 +103,10 @@ function set_value($object, $key, $value)
 
 function get_value($object, $key, $default = null, $castTo = null)
 {
+    if ($castTo) {
+        @trigger_error('Calling get_value with $castTo argument is deprecated. Use cast classes.', E_USER_DEPRECATED);
+    }
+
     return (function($key, $default, $castTo) {
         $value = array_get($key, $default , $this->values);
 
@@ -214,6 +226,9 @@ function clone_object($object)
     return build_object(get_class($object), get_values($object, true));
 }
 
+/**
+ * @deprecated
+ */
 class CastHooks {
     private static $castValueHook;
 
@@ -221,6 +236,8 @@ class CastHooks {
 
     public static function getCastValueHook(): \Closure
     {
+        @trigger_error('CastHooks::getCastValueHook() is deprecated.', E_USER_DEPRECATED);
+
         if (static::$castValueHook === null) {
             static::$castValueHook = function($object, $key, $value) {
                 return (function($key, $value) {
@@ -236,6 +253,8 @@ class CastHooks {
 
     public static function getCastToHook(): \Closure
     {
+        @trigger_error('CastHooks::getCastValueHook() is deprecated.', E_USER_DEPRECATED);
+
         if (static::$castToHook === null) {
             static::$castToHook = function($object, $key, $value, $default, $castTo) {
                 return (function($key, $value, $default, $castTo) {
@@ -251,7 +270,12 @@ class CastHooks {
 
 }
 
+/**
+ * @deprecated
+ */
 function register_cast_hooks($objectOrClass = null){
+    @trigger_error('register_cast_hooks() is deprecated.', E_USER_DEPRECATED);
+
     $castValueHook = CastHooks::getCastValueHook();
     $castToHook = CastHooks::getCastToHook();
 
