@@ -1,14 +1,7 @@
 <?php
 namespace Formapro\Values;
 
-/**
- * @param object $object
- * @param array $values
- * @param bool $byReference
- *
- * @return object
- */
-function set_values($object, array &$values, bool $byReference = false)
+function set_values(object $object, array &$values, bool $byReference = false): object
 {
     $func = (function (array &$values, $byReference) {
         if ($byReference) {
@@ -27,14 +20,14 @@ function set_values($object, array &$values, bool $byReference = false)
     return $func($values, $byReference);
 }
 
-function get_values($object, bool $copy = true): array
+function get_values(object $object, bool $copy = true): array
 {
     $values = (function () { return $this->values; })->call($object);
 
     return $copy ? array_copy($values) : $values;
 }
 
-function add_value($object, $key, $value, $valueKey = null)
+function add_value(object $object, string $key, $value, ?string $valueKey = null)
 {
     if ($value instanceof \DateTimeZone || $value instanceof \DateTime || $value instanceof \DateInterval) {
         @trigger_error('Calling add_value with date objects is deprecated. Use cast classes.', E_USER_DEPRECATED);
@@ -76,13 +69,13 @@ function add_value($object, $key, $value, $valueKey = null)
     })->call($object, $key, $value, $valueKey);
 }
 
-function set_value($object, $key, $value)
+function set_value(object $object, string $key, $value): void
 {
     if ($value instanceof \DateTimeZone || $value instanceof \DateTime || $value instanceof \DateInterval) {
         @trigger_error('Calling set_value with date objects is deprecated. Use cast classes.', E_USER_DEPRECATED);
     }
 
-    return (function($key, $value) {
+    (function($key, $value) {
         foreach (get_registered_hooks($this, HooksEnum::PRE_SET_VALUE) as $callback) {
             if (null !== $newValue = call_user_func($callback, $this, $key, $value)) {
                 $value = $newValue;
@@ -101,9 +94,14 @@ function set_value($object, $key, $value)
     })->call($object, $key, $value);
 }
 
-function get_value($object, $key, $default = null, $castTo = null)
+function get_value(object $object, string $key, $default = null)
 {
-    if ($castTo) {
+    $castTo = null;
+
+    $args = func_get_args();
+    if (4 == count($args) && $args[3]) {
+        $castTo = $args[3];
+
         @trigger_error('Calling get_value with $castTo argument is deprecated. Use cast classes.', E_USER_DEPRECATED);
     }
 
@@ -120,37 +118,6 @@ function get_value($object, $key, $default = null, $castTo = null)
     })->call($object, $key, $default, $castTo);
 }
 
-
-// TODO tobe reviewed
-
-function get_object_changed_values($object)
-{
-    return (function () {
-        $changedValues = $this->changedValues;
-
-        // hack I know
-        if (property_exists($this, 'objects')) {
-            foreach ($this->objects as $namespace => $namespaceValues) {
-                foreach ($namespaceValues as $name => $values) {
-                    if (is_array($values)) {
-                        foreach ($values as $valueKey => $value) {
-                            if ($changed = get_object_changed_values($value)) {
-                                $changedValues[$namespace][$name][$valueKey] = $changed;
-                            }
-                        }
-                    } elseif (is_object($values)) {
-                        if ($changed = get_object_changed_values($values)) {
-                            $changedValues[$namespace][$name] = $changed;
-                        }
-                    }
-                }
-            }
-        }
-
-        return $changedValues;
-    })->call($object);
-}
-
 /**
  * @param string|callable|null $classOrCallable
  * @param array $values
@@ -159,7 +126,7 @@ function get_object_changed_values($object)
  *
  * @return object
  */
-function build_object_ref($classOrCallable = null, array &$values, $context = null, $contextKey = null)
+function build_object_ref($classOrCallable = null, array &$values, ?object $context = null, ?string $contextKey = null): object
 {
     foreach (get_registered_hooks(HooksEnum::BUILD_OBJECT, HooksEnum::GET_OBJECT_CLASS) as $callback) {
         if ($dynamicClassOrCallable = call_user_func($callback, $values, $context, $contextKey, $classOrCallable)) {
@@ -220,12 +187,12 @@ function build_object_ref($classOrCallable = null, array &$values, $context = nu
  *
  * @return object
  */
-function build_object($classOrCallable = null, array $values)
+function build_object($classOrCallable = null, array $values): object
 {
     return build_object_ref($classOrCallable, $values);
 }
 
-function clone_object($object)
+function clone_object(object $object): object
 {
     return build_object(get_class($object), get_values($object, true));
 }
@@ -277,7 +244,8 @@ class CastHooks {
 /**
  * @deprecated
  */
-function register_cast_hooks($objectOrClass = null){
+function register_cast_hooks($objectOrClass = null): void
+{
     @trigger_error('register_cast_hooks() is deprecated.', E_USER_DEPRECATED);
 
     $castValueHook = CastHooks::getCastValueHook();

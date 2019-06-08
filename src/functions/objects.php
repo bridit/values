@@ -1,7 +1,8 @@
 <?php
 namespace Formapro\Values;
 
-function register_object_hooks() {
+function register_object_hooks(): void
+{
     $resetObjectsHook = function($object, $key) {
         call($object, $key, function($key) {
             if (property_exists($this, 'objects')) {
@@ -21,12 +22,7 @@ function register_object_hooks() {
 
 register_object_hooks();
 
-/**
- * @param object      $context
- * @param string      $key
- * @param object|null $object
- */
-function set_object($context, $key, $object)
+function set_object(object $context, string $key, ?object $object): void
 {
     (function($key, $object) use($context) {
         if ($object) {
@@ -49,11 +45,9 @@ function set_object($context, $key, $object)
 }
 
 /**
- * @param object $context
- * @param string $key
  * @param object[]|null $objects
  */
-function set_objects($context, $key, $objects)
+function set_objects(object $context, string $key, ?array $objects): void
 {
     (function($key, $objects) use ($context) {
         if (null !== $objects) {
@@ -83,12 +77,7 @@ function set_objects($context, $key, $objects)
     })->call($context, $key, $objects);
 }
 
-/**
- * @param string $key
- * @param object $object
- * @param string|null $objectKey
- */
-function add_object($context, $key, $object, $objectKey = null)
+function add_object(object $context, string $key, ?object $object, ?string $objectKey = null): void
 {
     (function($key, $object, $objectKey) use ($context) {
         $objectValues = get_values($object, false);
@@ -108,19 +97,15 @@ function add_object($context, $key, $object, $objectKey = null)
 }
 
 /**
- * @param object $object
- * @param string $key
  * @param string|\Closure|null $classOrClosure
- *
- * @return null|object
  */
-function get_object($object, $key, $classOrClosure = null)
+function get_object(object $context, string $key, $classOrClosure = null): ?object
 {
     return (function($key, $classOrClosure) {
         if (false == $object = array_get($key, null, $this->objects)) {
             $values =& array_get($key, null, $this->values);
             if (null === $values) {
-                return;
+                return null;
             }
 
             $object = build_object_ref($classOrClosure, $values, $this, $key);
@@ -129,16 +114,13 @@ function get_object($object, $key, $classOrClosure = null)
         }
 
         return $object;
-    })->call($object, $key, $classOrClosure);
+    })->call($context, $key, $classOrClosure);
 }
 
 /**
- * @param string               $key
  * @param string|\Closure|null $classOrClosure
- *
- * @return \Traversable
  */
-function get_objects($context, $key, $classOrClosure = null)
+function get_objects(object $context, string $key, $classOrClosure = null): \Traversable
 {
     return (function($key, $classOrClosure) {
         foreach (array_keys(array_get($key, [], $this->values)) as $valueKey) {
@@ -155,7 +137,7 @@ function get_objects($context, $key, $classOrClosure = null)
     })->call($context, $key, $classOrClosure);
 }
 
-function register_propagate_root_hooks($object)
+function register_propagate_root_hooks(object $object): void
 {
     register_hook($object, HooksEnum::POST_SET_OBJECT, function ($object, $context, $contextKey) {
         propagate_root($object, $context, $contextKey);
