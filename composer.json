@@ -20,6 +20,9 @@
   "config": {
     "bin-dir": "bin"
   },
+  "replace": {
+    "formapro/values": "*"
+  },
   "autoload": {
     "psr-4": { "Formapro\\Values\\": "src" },
     "files": ["src/functions_include.php"]
