@@ -189,13 +189,17 @@ function build_object_ref($classOrCallable = null, array &$values, $context = nu
         $class = (string) $classOrCallable;
     }
 
-    $object = new $class();
+    if (is_object($class)) {
+        $object = $class;
+    } else {
+        $object = new $class();
 
-    //values set in constructor
-    $defaultValues = get_values($object, false);
-    $values = array_replace($defaultValues, $values);
+        //values set in constructor
+        $defaultValues = get_values($object, false);
+        $values = array_replace($defaultValues, $values);
 
-    set_values($object, $values, true);
+        set_values($object, $values, true);
+    }
 
     if ($context) {
         foreach (get_registered_hooks($context, HooksEnum::POST_BUILD_SUB_OBJECT) as $callback) {

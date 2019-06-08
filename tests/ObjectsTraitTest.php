@@ -734,4 +734,27 @@ class ObjectsTraitTest extends TestCase
 
         $this->assertInstanceOf(SubObject::class, $subObj);
     }
+
+    public function testClosureReturnsObject()
+    {
+        $values = [
+            'aKey' => [
+                'aSubName' => ['aSubKey' => 'aFooVal'],
+            ],
+        ];
+
+        $expectedObj = new EmptyObject();
+
+        $obj = new EmptyObject();
+        set_values($obj, $values);
+
+        $actualObj = get_object($obj, 'aKey', function() use ($expectedObj) {
+            return $expectedObj;
+        });
+
+        $this->assertSame($expectedObj, $actualObj);
+
+        $objects = $this->readAttribute($obj, 'objects');
+        $this->assertSame($expectedObj, $objects['aKey']);
+    }
 }
