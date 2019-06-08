@@ -5,7 +5,6 @@ use function Formapro\Values\clone_object;
 use function Formapro\Values\get_object;
 use function Formapro\Values\get_objects;
 use function Formapro\Values\get_values;
-use function Formapro\Values\get_object_changed_values;
 use Formapro\Values\HooksEnum;
 use Formapro\Values\HookStorage;
 use function Formapro\Values\register_hook;
@@ -149,17 +148,6 @@ class ObjectsTraitTest extends TestCase
 
         $subObj->setValue('aSubName.aSubKey', 'aBarVal');
         self::assertSame(['aSubName' => ['aSubKey' => 'aBarVal']], get_values($subObj));
-    }
-
-    public function testShouldAddSubObjValuesToObjChangedValues()
-    {
-        $subObj = new SubObject();
-        $subObj->setValue('aSubName.aSubKey', 'aFooVal');
-
-        $obj = new EmptyObject();
-        $obj->setObject('aName.aKey', $subObj);
-
-        self::assertSame(['aName' => ['aKey' => ['aSubName' => ['aSubKey' => 'aFooVal']]]], get_object_changed_values($obj));
     }
 
     public function testShouldUnsetSubObjIfSameValueChangedAfterSubObjSet()
@@ -317,52 +305,6 @@ class ObjectsTraitTest extends TestCase
         self::assertSame(['aSubName' => ['aSubKey' => 'aBarVal']], get_values($subObjs[1]));
     }
 
-    public function testShouldUpdateChangedValuesWhenObjectsSet()
-    {
-        $subObjFoo = new SubObject();
-        $subObjFoo->setValue('aSubName.aSubKey', 'aFooVal');
-
-        $subObjBar = new SubObject();
-        $subObjBar->setValue('aSubName.aSubKey', 'aBarVal');
-
-        $obj = new EmptyObject();
-
-        self::assertAttributeEmpty('changedValues', $obj);
-
-        $obj->setObjects('aName.aKey', [$subObjFoo, $subObjBar]);
-
-        self::assertAttributeEquals(['aName' => ['aKey' => [
-            ['aSubName' => ['aSubKey' => 'aFooVal']],
-            ['aSubName' => ['aSubKey' => 'aBarVal']],
-        ]]], 'changedValues', $obj);
-    }
-
-    public function testShouldUpdatedChangedValuesWhenObjectAdded()
-    {
-        $subObjFoo = new SubObject();
-        $subObjFoo->setValue('aSubName.aSubKey', 'aFooVal');
-
-        $subObjBar = new SubObject();
-        $subObjBar->setValue('aSubName.aSubKey', 'aBarVal');
-
-        $obj = new EmptyObject();
-
-        self::assertAttributeEmpty('changedValues', $obj);
-
-        $obj->addObject('aName.aKey', $subObjFoo);
-        $obj->addObject('aName.aKey', $subObjBar);
-
-        $objs = $obj->getObjects('aName.aKey', SubObject::class);
-        $objs = iterator_to_array($objs);
-
-        self::assertSame([$subObjFoo, $subObjBar], $objs);
-
-        self::assertAttributeEquals(['aName' => ['aKey' => [
-            ['aSubName' => ['aSubKey' => 'aFooVal']],
-            ['aSubName' => ['aSubKey' => 'aBarVal']],
-        ]]], 'changedValues', $obj);
-    }
-
     public function testShouldAllowUnsetObjects()
     {
         $subObjFoo = new SubObject();
@@ -421,104 +363,6 @@ class ObjectsTraitTest extends TestCase
         self::assertSame(['aSubName' => ['aSubKey' => 'aBarVal']], get_values($subObjBar));
     }
 
-    public function testShouldReflectChangesDoneInSubObject()
-    {
-        $values = [
-            'aName' => [
-                'aKey' => [
-                    'aSubName' => ['aSubKey' => 'aFooVal'],
-                ],
-            ],
-        ];
-
-        $obj = new EmptyObject();
-        set_values($obj, $values);
-
-        //guard
-        self::assertEmpty(get_object_changed_values($obj));
-
-        $subObj = $obj->getObject('aName.aKey', SubObject::class);
-
-        $subObj->setValue('aSubName.aSubKey', 'aBarVal');
-
-        self::assertEquals(['aSubName' => ['aSubKey' => 'aBarVal']], get_object_changed_values($subObj));
-        self::assertEquals([
-            'aName' => [
-                'aKey' => [
-                    'aSubName' => ['aSubKey' => 'aBarVal'],
-                ],
-            ],
-        ], get_object_changed_values($obj));
-
-        self::assertEquals([
-            'aName' => [
-                'aKey' => [
-                    'aSubName' => ['aSubKey' => 'aBarVal'],
-                ],
-            ],
-        ], get_object_changed_values($obj));
-    }
-
-    public function testShouldReflectChangesDoneInSubObjectFromCollection()
-    {
-        $values = [
-            'aName' => [
-                'aKey' => [
-                    ['aSubName' => ['aSubKey' => 'aFooVal']],
-                    ['aSubName' => ['aSubKey' => 'aBarVal']],
-                ],
-            ],
-        ];
-
-        $obj = new EmptyObject();
-        set_values($obj, $values);
-
-        //guard
-        self::assertEmpty(get_object_changed_values($obj));
-
-        $subObjs = $obj->getObjects('aName.aKey', SubObject::class);
-
-        self::assertInstanceOf(\Traversable::class, $subObjs);
-        $subObjs = iterator_to_array($subObjs);
-        $subObjs[0]->setValue('aSubName.aSubKey', 'aBazVal');
-
-        self::assertEquals(
-            ['aSubName' => ['aSubKey' => 'aBazVal']],
-            get_object_changed_values($subObjs[0])
-        );
-
-        self::assertEquals([
-            'aName' => [
-                'aKey' => [
-                    ['aSubName' => ['aSubKey' => 'aBazVal']],
-                ],
-            ],
-        ], get_object_changed_values($obj));
-    }
-
-    public function testShouldReflectChangesDoneWhenSubObjectUnset()
-    {
-        $values = $arr = [
-            'aName' => [
-                'aKey' => [
-                    'aSubName' => ['aSubKey' => 'aFooVal'],
-                ],
-            ],
-        ];
-
-        $obj = new EmptyObject();
-        set_values($obj, $values);
-
-        //guard
-        self::assertEmpty(get_object_changed_values($obj));
-
-        $obj->setObject('aName.aKey', null);
-
-        self::assertNotEmpty(get_object_changed_values($obj));
-
-        self::assertEquals(['aName' => ['aKey' => null]], get_object_changed_values($obj));
-    }
-
     public function testShouldNotReflectChangesIfObjectWasCloned()
     {
         $values = [
@@ -531,9 +375,6 @@ class ObjectsTraitTest extends TestCase
 
         $obj = new EmptyObject();
         set_values($obj, $values);
-
-        //guard
-        self::assertEmpty(get_object_changed_values($obj));
 
         /** @var SubObject $subObj */
         $subObj = $obj->getObject('aName.aKey', SubObject::class);

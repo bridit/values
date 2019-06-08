@@ -65,19 +65,6 @@ class ValuesTest extends TestCase
         self::assertSame('aVal', get_value($obj, 'aNamespace.aKey', 'aDefaultVal'));
     }
 
-    public function testShouldResetChangedValuesOnSetValues()
-    {
-        $obj = new EmptyObject();
-        set_value($obj, 'aNamespace.aKey', 'aVal');
-
-        self::assertSame(['aNamespace' => ['aKey' => 'aVal']], get_values($obj));
-
-        $values = ['bar' => 'barVal'];
-        set_values($obj, $values);
-
-        self::assertSame(['bar' => 'barVal'], get_values($obj));
-    }
-
     public function testShouldAllowUnsetPreviouslySetSimpleValue()
     {
         $obj = new EmptyObject();
