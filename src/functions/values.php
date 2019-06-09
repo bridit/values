@@ -4,6 +4,8 @@ namespace Formapro\Values;
 function set_values(object $object, array &$values, bool $byReference = false): object
 {
     $func = (function (array &$values, $byReference) {
+        Assert::propertyExists($this, 'values');
+
         if ($byReference) {
             $this->values = &$values;
         } else {
@@ -22,7 +24,12 @@ function set_values(object $object, array &$values, bool $byReference = false): 
 
 function get_values(object $object, bool $copy = true): array
 {
-    $values = (function () { return $this->values; })->call($object);
+    $values = (function () {
+        Assert::propertyExists($this, 'values');
+        Assert::isArray($this->values);
+
+        return $this->values;
+    })->call($object);
 
     return $copy ? array_copy($values) : $values;
 }
@@ -39,6 +46,9 @@ function add_value(object $object, string $key, $value, ?string $valueKey = null
                 $value = $changedValue;
             }
         }
+
+        Assert::propertyExists($this, 'values');
+        Assert::isArray($this->values);
 
         $newValue = array_get($key, [], $this->values);
         if (false == is_array($newValue)) {
@@ -82,6 +92,9 @@ function set_value(object $object, string $key, $value): void
             }
         }
 
+        Assert::propertyExists($this, 'values');
+        Assert::isArray($this->values);
+
         if (null !== $value) {
             $modified = array_set($key, $value, $this->values);
         } else {
@@ -106,6 +119,9 @@ function get_value(object $object, string $key, $default = null)
     }
 
     return (function($key, $default, $castTo) {
+        Assert::propertyExists($this, 'values');
+        Assert::isArray($this->values);
+
         $value = array_get($key, $default , $this->values);
 
         foreach (get_registered_hooks($this, HooksEnum::POST_GET_VALUE) as $callback) {

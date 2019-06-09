@@ -9,6 +9,7 @@ use function Formapro\Values\get_values;
 use function Formapro\Values\set_value;
 use function Formapro\Values\set_values;
 use Formapro\Values\Tests\Model\EmptyObject;
+use Formapro\Values\Tests\Model\InvalidObject;
 use Formapro\Values\ValuesTrait;
 use PHPUnit\Framework\TestCase;
 
@@ -251,5 +252,55 @@ class ValuesTest extends TestCase
             'foo' => 'fooVal',
             'bar' => 'newBarVal'
         ], get_values($builtObj));
+    }
+
+    public function testThrowsOnGetValuesIfNotInit()
+    {
+        $obj = new InvalidObject();
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Expected the property Formapro\Values\Tests\Model\InvalidObject::values to exist');
+        get_values($obj);
+    }
+
+    public function testThrowsOnSetValuesIfNotInit()
+    {
+        $obj = new InvalidObject();
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Expected the property Formapro\Values\Tests\Model\InvalidObject::values to exist');
+
+        $values = [];
+        set_values($obj, $values);
+    }
+
+    public function testThrowsOnSetValueIfNotInit()
+    {
+        $obj = new InvalidObject();
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Expected the property Formapro\Values\Tests\Model\InvalidObject::values to exist');
+
+        set_value($obj, 'foo', 'val');
+    }
+
+    public function testThrowsOnAddValueIfNotInit()
+    {
+        $obj = new InvalidObject();
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Expected the property Formapro\Values\Tests\Model\InvalidObject::values to exist');
+
+        add_value($obj, 'foo', 'val');
+    }
+
+    public function testThrowsOnGetValueIfNotInit()
+    {
+        $obj = new InvalidObject();
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Expected the property Formapro\Values\Tests\Model\InvalidObject::values to exist');
+
+        get_value($obj, 'foo');
     }
 }

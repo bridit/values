@@ -25,6 +25,12 @@ register_object_hooks();
 function set_object(object $context, string $key, ?object $object): void
 {
     (function($key, $object) use($context) {
+        Assert::propertyExists($this, 'values');
+        Assert::isArray($this->values);
+
+        Assert::propertyExists($this, 'objects');
+        Assert::isArray($this->objects);
+
         if ($object) {
             set_value($this, $key, null);
             set_value($this, $key, get_values($object, false));
@@ -50,6 +56,12 @@ function set_object(object $context, string $key, ?object $object): void
 function set_objects(object $context, string $key, ?array $objects): void
 {
     (function($key, $objects) use ($context) {
+        Assert::propertyExists($this, 'values');
+        Assert::isArray($this->values);
+
+        Assert::propertyExists($this, 'objects');
+        Assert::isArray($this->objects);
+
         if (null !== $objects) {
             array_set($key, [], $this->objects);
 
@@ -80,6 +92,12 @@ function set_objects(object $context, string $key, ?array $objects): void
 function add_object(object $context, string $key, ?object $object, ?string $objectKey = null): void
 {
     (function($key, $object, $objectKey) use ($context) {
+        Assert::propertyExists($this, 'values');
+        Assert::isArray($this->values);
+
+        Assert::propertyExists($this, 'objects');
+        Assert::isArray($this->objects);
+
         $objectValues = get_values($object, false);
 
         $objectKey = add_value($this, $key, $objectValues, $objectKey);
@@ -102,6 +120,12 @@ function add_object(object $context, string $key, ?object $object, ?string $obje
 function get_object(object $context, string $key, $classOrClosure = null): ?object
 {
     return (function($key, $classOrClosure) {
+        Assert::propertyExists($this, 'values');
+        Assert::isArray($this->values);
+
+        Assert::propertyExists($this, 'objects');
+        Assert::isArray($this->objects);
+
         if (false == $object = array_get($key, null, $this->objects)) {
             $values =& array_get($key, null, $this->values);
             if (null === $values) {
@@ -123,6 +147,12 @@ function get_object(object $context, string $key, $classOrClosure = null): ?obje
 function get_objects(object $context, string $key, $classOrClosure = null): \Traversable
 {
     return (function($key, $classOrClosure) {
+        Assert::propertyExists($this, 'values');
+        Assert::isArray($this->values);
+
+        Assert::propertyExists($this, 'objects');
+        Assert::isArray($this->objects);
+
         foreach (array_keys(array_get($key, [], $this->values)) as $valueKey) {
             if (false == $object = array_get("$key.$valueKey", null, $this->objects)) {
                 if ($object = get_object($this, "$key.$valueKey", $classOrClosure)) {
