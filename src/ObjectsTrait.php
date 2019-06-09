@@ -30,7 +30,7 @@ trait ObjectsTrait
         return get_object($this, $key, $classOrClosure);
     }
 
-    protected function setObject(string $key, object $object): void
+    protected function setObject(string $key, ?object $object): void
     {
         set_object($this, $key, $object);
     }
@@ -38,7 +38,7 @@ trait ObjectsTrait
     /**
      * @param object[]|array $objects
      */
-    protected function setObjects(string $key, array $objects): void
+    protected function setObjects(string $key, ?array $objects): void
     {
         set_objects($this, $key, $objects);
     }
