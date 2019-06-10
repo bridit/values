@@ -20,9 +20,9 @@ trait ValuesTrait
         $castTo = null;
         $args = func_get_args();
         if (3 == count($args)) {
-            $castTo = $args[2];
+            return get_value($this, $key, $default, $args[2]);
         }
 
-        return get_value($this, $key, $default, $castTo);
+        return get_value($this, $key, $default);
     }
 }
