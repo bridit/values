@@ -4,8 +4,12 @@ namespace Formapro\Values\Cast;
 
 class CastDateInterval
 {
-    public static function to(\DateInterval $interval): array
+    public static function to(?\DateInterval $interval): ?array
     {
+        if (null === $interval) {
+            return null;
+        }
+
         return [
             'interval' => $interval->format('P%yY%mM%dDT%HH%IM%SS'),
             'days' => $interval->days,

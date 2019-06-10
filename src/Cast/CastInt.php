@@ -4,7 +4,7 @@ namespace Formapro\Values\Cast;
 
 class CastInt
 {
-    public static function to(int $int): int
+    public static function to(?int $int): ?int
     {
         return $int;
     }

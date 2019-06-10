@@ -4,8 +4,12 @@ namespace Formapro\Values\Cast;
 
 class CastDateTime
 {
-    public static function to(\DateTime $date): array
+    public static function to(?\DateTime $date): ?array
     {
+        if (null === $date) {
+            return null;
+        }
+
         return [
             'unix' => (int) $date->format('U'),
             'time' => (string) $date->format('Y-m-d\TH:i:s'),

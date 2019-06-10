@@ -4,15 +4,27 @@ namespace Formapro\Values\Cast;
 
 class CastDateTimeZone
 {
-    public static function to(\DateTimeZone $timeZone): array
+    public static function to(?\DateTimeZone $zone): ?array
     {
+        if (null === $zone) {
+            return null;
+        }
+
         return [
-            'tz' => $timeZone->getName(),
+            'tz' => $zone->getName(),
         ];
     }
 
     public static function from($value): ?\DateTimeZone
     {
-        return null !== $value ? new \DateTimeZone($value['tz']) : null;
+        if (null === $value) {
+            return null;
+        }
+
+        if (is_array($value) && array_key_exists('tz', $value)) {
+            return new \DateTimeZone($value['tz']);
+        }
+
+        return new \DateTimeZone($value);
     }
 }
