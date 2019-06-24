@@ -2,8 +2,21 @@
 
 namespace Formapro\Values\Cast;
 
+use function Formapro\Values\get_value;
+use function Formapro\Values\set_value;
+
 class CastDateTime
 {
+    public static function set(object $object, string $key, ?\DateTime $value): void
+    {
+        set_value($object, $key, self::to($value));        
+    }
+
+    public static function get(object $object, string $key, \DateTime $default = null): ?\DateTime
+    {
+        return self::from(get_value($object, $key)) ?: $default;
+    }
+
     public static function to(?\DateTime $date): ?array
     {
         if (null === $date) {
