@@ -1,9 +1,10 @@
 {
-  "name": "formapro/values",
+  "name": "bridit/values",
   "type": "library",
   "description": "Alter ego objects. Highly efficient way of building models, api clients and so on",
-
-  "keywords": ["model"],
+  "keywords": [
+    "model"
+  ],
   "license": "MIT",
   "authors": [
     {
@@ -12,10 +13,10 @@
     }
   ],
   "require": {
-    "php": "^7.2"
+    "php": "^7.2|^8.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "^6"
+    "phpunit/phpunit": "^9.5"
   },
   "config": {
     "bin-dir": "bin"
@@ -24,11 +25,17 @@
     "formapro/values": "*"
   },
   "autoload": {
-    "psr-4": { "Formapro\\Values\\": "src" },
-    "files": ["src/functions_include.php"]
+    "psr-4": {
+      "Formapro\\Values\\": "src"
+    },
+    "files": [
+      "src/functions_include.php"
+    ]
   },
   "autoload-dev": {
-    "psr-4": { "Formapro\\Values\\Tests\\": "tests" }
+    "psr-4": {
+      "Formapro\\Values\\Tests\\": "tests"
+    }
   },
   "extra": {
     "branch-alias": {
